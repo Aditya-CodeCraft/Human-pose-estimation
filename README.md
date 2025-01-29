@@ -17,7 +17,7 @@ Interactive Applications: Offer natural and immersive user experiences in gaming
 <br>
 <hr>
 Implementation : <br>
-The project involves designing and implementing a human pose estimation system using MediaPipe. <br> Key steps include:
+The project involves designing and implementing a human pose estimation system using MediaPipe.  Key steps include:
 <br>
 Image Pose Estimation: Detecting and annotating human poses in static images.
 <br>
