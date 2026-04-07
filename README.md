@@ -22,3 +22,6 @@ The project involves designing and implementing a human pose estimation system u
 Image Pose Estimation: Detecting and annotating human poses in static images.
 <br>
 Video Pose Estimation: Detecting and annotating human poses in real-time video streams.
+
+Implemented again via ml5.js and p5.js and heres the deployed code https://velvety-twilight-9e0b82.netlify.app/
+
