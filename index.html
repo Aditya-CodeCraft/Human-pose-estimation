@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pose Detection (PoseNet)</title>
+
+```
+<!-- p5.js -->
+<script src="https://cdn.jsdelivr.net/npm/p5@1.4.0/lib/p5.js"></script>
+
+<!-- ml5.js (stable version) -->
+<script src="https://unpkg.com/ml5@0.6.0/dist/ml5.min.js"></script>
+```
+
+</head>
+
+<body>
+    <h2 style="text-align:center;">Pose Detection using PoseNet</h2>
+
+```
+<script>
+    let capture;
+    let poseNet;
+    let pose = null;
+    let skeleton = null;
+
+    function setup() {
+        createCanvas(640, 480);
+
+        capture = createCapture(VIDEO);
+        capture.size(640, 480);
+        capture.hide();
+
+        poseNet = ml5.poseNet(capture, () => {
+            console.log("✅ PoseNet Loaded");
+        });
+
+        poseNet.on('pose', (results) => {
+            if (results.length > 0) {
+                pose = results[0].pose;
+                skeleton = results[0].skeleton;
+            }
+        });
+    }
+
+    function draw() {
+        image(capture, 0, 0);
+
+        if (!pose) return;
+
+        // 🔴 Draw keypoints
+        fill(255, 0, 0);
+        noStroke();
+        for (let i = 0; i < pose.keypoints.length; i++) {
+            const { x, y } = pose.keypoints[i].position;
+            ellipse(x, y, 8, 8);
+        }
+
+        // ⚪ Draw skeleton
+        stroke(255);
+        strokeWeight(2);
+        for (let i = 0; i < skeleton.length; i++) {
+            const a = skeleton[i][0].position;
+            const b = skeleton[i][1].position;
+            line(a.x, a.y, b.x, b.y);
+        }
+
+        // 🟢 Connect eyes manually
+        const leftEye = pose.leftEye;
+        const rightEye = pose.rightEye;
+
+        stroke(0, 255, 0);
+        strokeWeight(2);
+        line(leftEye.x, leftEye.y, rightEye.x, rightEye.y);
+    }
+</script>
+```
+
+</body>
+</html>
