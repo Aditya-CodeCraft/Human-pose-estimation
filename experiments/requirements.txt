@@ -1,0 +1,3 @@
+# The experiments use MediaPipe's legacy mp.solutions API, which was dropped from the pip package after 0.10.21.
+# 0.10.21 has wheels for Python 3.9-3.12 only and needs numpy<2 and protobuf<5, so install it in its own environment.
+mediapipe<=0.10.21
