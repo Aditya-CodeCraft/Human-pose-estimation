@@ -2,7 +2,7 @@
 
 Detects and draws human body keypoints (shoulders, elbows, knees and more) in images and video.
 
-**Live browser demo:** https://velvety-twilight-9e0b82.netlify.app/ (ml5.js PoseNet with p5.js, runs on your webcam; nothing is uploaded, inference happens in the browser)
+**Live browser demo:** https://remarkable-profiterole-f36b20.netlify.app/ (ml5.js PoseNet with p5.js, runs on your webcam; nothing is uploaded, inference happens in the browser)
 
 ## What is in this repository
 
