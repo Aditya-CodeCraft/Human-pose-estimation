@@ -7,6 +7,8 @@
     <style>
         /* p5 sets the canvas size in pixels inline; let it shrink on narrow screens and keep its 4:3 shape */
         canvas { max-width: 100%; height: auto !important; display: block; margin: 0 auto; }
+        #angles { border-collapse: collapse; margin: 12px auto; font-family: sans-serif; }
+        #angles th, #angles td { border: 1px solid #ccc; padding: 4px 12px; text-align: left; }
     </style>
 
     <!-- p5.js -->
@@ -20,11 +22,56 @@
     <h2 style="text-align:center;">Pose Detection using PoseNet</h2>
     <p style="text-align:center;">Allow camera access. Keypoints are drawn in red, the skeleton in white. Nothing is uploaded; inference runs in your browser.</p>
 
+    <table id="angles">
+        <thead><tr><th>Joint</th><th>Angle (deg)</th></tr></thead>
+        <tbody>
+            <tr><td>Right elbow</td><td id="angle-right-elbow">-</td></tr>
+            <tr><td>Left elbow</td><td id="angle-left-elbow">-</td></tr>
+            <tr><td>Right knee</td><td id="angle-right-knee">-</td></tr>
+            <tr><td>Left knee</td><td id="angle-left-knee">-</td></tr>
+        </tbody>
+    </table>
+
     <script>
         let capture;
         let poseNet;
         let pose = null;
         let skeleton = null;
+
+        // Same joints as the Streamlit app: [table cell id, first point, vertex, second point] using PoseNet's keypoint names.
+        const JOINT_ANGLES = [
+            ["angle-right-elbow", "rightShoulder", "rightElbow", "rightWrist"],
+            ["angle-left-elbow", "leftShoulder", "leftElbow", "leftWrist"],
+            ["angle-right-knee", "rightHip", "rightKnee", "rightAnkle"],
+            ["angle-left-knee", "leftHip", "leftKnee", "leftAnkle"],
+        ];
+        const MIN_CONFIDENCE = 0.3; // keypoints below this score are treated as not detected
+
+        // Angle in degrees at vertex b formed by a-b-c, or null if a point is missing or too uncertain.
+        function jointAngle(a, b, c) {
+            if (!a || !b || !c) return null;
+            if (a.confidence < MIN_CONFIDENCE || b.confidence < MIN_CONFIDENCE || c.confidence < MIN_CONFIDENCE) return null;
+            const bax = a.x - b.x, bay = a.y - b.y;
+            const bcx = c.x - b.x, bcy = c.y - b.y;
+            const denom = Math.hypot(bax, bay) * Math.hypot(bcx, bcy);
+            if (denom === 0) return null;
+            const cos = Math.max(-1, Math.min(1, (bax * bcx + bay * bcy) / denom));
+            return Math.acos(cos) * 180 / Math.PI;
+        }
+
+        function updateAngles() {
+            for (const [cellId, aName, bName, cName] of JOINT_ANGLES) {
+                const angle = jointAngle(pose[aName], pose[bName], pose[cName]);
+                document.getElementById(cellId).textContent = angle === null ? "not detected" : angle.toFixed(0);
+                if (angle !== null) {
+                    // Label the angle on the canvas next to the joint as well
+                    noStroke();
+                    fill(255, 255, 0);
+                    textSize(14);
+                    text(angle.toFixed(0) + "°", pose[bName].x + 8, pose[bName].y - 8);
+                }
+            }
+        }
 
         function setup() {
             createCanvas(640, 480);
@@ -74,6 +121,8 @@
             stroke(0, 255, 0);
             strokeWeight(2);
             line(leftEye.x, leftEye.y, rightEye.x, rightEye.y);
+
+            updateAngles();
         }
     </script>
 </body>

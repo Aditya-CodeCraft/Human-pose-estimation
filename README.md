@@ -60,7 +60,7 @@ python experiments/mediapipe_webcam_pose.py path/to/video.mp4        # a video f
 ## How it works
 
 - **OpenCV app.** The image is resized to 368 x 368 and passed through the network, which outputs one heatmap per body part. Each heatmap is reduced to its most confident point; points below the slider threshold are dropped, and the remaining points are joined using a fixed list of limb pairs.
-- **Browser demo.** ml5.js loads PoseNet in the browser and p5.js draws the 17 keypoints and the skeleton over the live camera frame on every draw call.
+- **Browser demo.** ml5.js loads PoseNet in the browser and p5.js draws the 17 keypoints and the skeleton over the live camera frame on every draw call. The same elbow and knee angles as the Streamlit app are labelled on the canvas and listed in a table under it; keypoints with a PoseNet score below 0.3 count as not detected.
 - **Experiments.** MediaPipe Pose returns 33 landmarks per frame with its own drawing utilities; the two scripts show the single-image and the streaming case.
 
 ## Sample output
