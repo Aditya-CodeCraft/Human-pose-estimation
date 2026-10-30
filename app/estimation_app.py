@@ -6,6 +6,7 @@ Run from the repository root:
 The model (graph_opt.pb) and the demo image (stand.jpg) are loaded relative to this file, so the app works from any
 working directory.
 """
+import io
 import threading
 from pathlib import Path
 
@@ -121,6 +122,10 @@ output, points = pose_detector(image, net, threshold)
 
 st.subheader("Estimated pose")
 st.image(output, caption="Estimated pose", width="stretch")
+
+buffer = io.BytesIO()
+Image.fromarray(output).save(buffer, format="PNG")
+st.download_button("Download annotated image", data=buffer.getvalue(), file_name="pose.png", mime="image/png")
 
 st.subheader("Joint angles")
 rows = []

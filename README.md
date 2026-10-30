@@ -23,7 +23,18 @@ pip install -r requirements.txt
 streamlit run app/estimation_app.py
 ```
 
-Upload a clear, full-body image, or use the bundled demo image, then move the threshold slider to control how confident a detection must be before it is drawn.
+Upload a clear, full-body image, or use the bundled demo image, then move the threshold slider to control how confident a detection must be before it is drawn. Below the skeleton the app lists the elbow and knee angles it could compute, and the annotated image can be downloaded as a PNG.
+
+## Roadmap
+
+The goal is automatic feedback on exercise form, as a cheap alternative to a personal trainer, with rehab and physiotherapy as a second use case.
+
+- [x] Joint angles (elbows, knees) computed from the detected keypoints
+- [ ] Hip and shoulder angles, plus torso lean relative to vertical
+- [ ] Per-exercise form rules (squat depth, push-up elbow lock-out, plank alignment)
+- [ ] Rep counting from angle minima and maxima on webcam or video input
+- [ ] Webcam mode in the Streamlit app, not only in the browser demo
+- [ ] Cleaner UI: side-by-side original and result, per-joint confidence
 
 ## Run the browser demo locally
 
