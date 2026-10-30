@@ -45,8 +45,30 @@ def load_network():
     return cv2.dnn.readNetFromTensorflow(str(MODEL_PATH))
 
 
-def pose_detector(frame: np.ndarray, net, threshold: float) -> np.ndarray:
-    """Return a copy of the frame with detected keypoints and limbs drawn on it.
+# Joints whose angle is useful for exercise-form feedback: (name, first point, vertex, second point).
+JOINT_ANGLES = [
+    ("Right elbow", "RShoulder", "RElbow", "RWrist"),
+    ("Left elbow", "LShoulder", "LElbow", "LWrist"),
+    ("Right knee", "RHip", "RKnee", "RAnkle"),
+    ("Left knee", "LHip", "LKnee", "LAnkle"),
+]
+
+
+def joint_angle(a, b, c):
+    """Angle in degrees at vertex b formed by points a-b-c, or None if any point is missing."""
+    if a is None or b is None or c is None:
+        return None
+    ba = np.array(a, dtype=float) - np.array(b, dtype=float)
+    bc = np.array(c, dtype=float) - np.array(b, dtype=float)
+    denom = np.linalg.norm(ba) * np.linalg.norm(bc)
+    if denom == 0:
+        return None
+    cos_angle = np.clip(np.dot(ba, bc) / denom, -1.0, 1.0)
+    return float(np.degrees(np.arccos(cos_angle)))
+
+
+def pose_detector(frame: np.ndarray, net, threshold: float):
+    """Return a copy of the frame with detected keypoints and limbs drawn on it, plus the list of keypoints.
 
     Each of the 19 heatmaps (18 body parts plus background) is reduced to its most confident point; points below
     `threshold` are dropped, and the remaining points are joined using the fixed list of limb pairs in POSE_PAIRS. The
@@ -75,7 +97,7 @@ def pose_detector(frame: np.ndarray, net, threshold: float) -> np.ndarray:
             cv2.ellipse(frame, points[id_from], (3, 3), 0, 0, 360, (0, 0, 255), cv2.FILLED)
             cv2.ellipse(frame, points[id_to], (3, 3), 0, 0, 360, (0, 0, 255), cv2.FILLED)
 
-    return frame
+    return frame, points
 
 
 st.title("Human Pose Estimation (OpenCV)")
@@ -95,7 +117,14 @@ st.image(image, caption="Original image", width="stretch")
 
 threshold = st.slider("Confidence threshold for keypoints (%)", min_value=0, max_value=100, value=20, step=5) / 100
 
-output = pose_detector(image, net, threshold)
+output, points = pose_detector(image, net, threshold)
 
 st.subheader("Estimated pose")
 st.image(output, caption="Estimated pose", width="stretch")
+
+st.subheader("Joint angles")
+rows = []
+for name, a, b, c in JOINT_ANGLES:
+    angle = joint_angle(points[BODY_PARTS[a]], points[BODY_PARTS[b]], points[BODY_PARTS[c]])
+    rows.append({"Joint": name, "Angle (deg)": "not detected" if angle is None else f"{angle:.0f}"})
+st.table(rows)
