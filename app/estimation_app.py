@@ -52,6 +52,10 @@ JOINT_ANGLES = [
     ("Left elbow", "LShoulder", "LElbow", "LWrist"),
     ("Right knee", "RHip", "RKnee", "RAnkle"),
     ("Left knee", "LHip", "LKnee", "LAnkle"),
+    ("Right hip", "RShoulder", "RHip", "RKnee"),
+    ("Left hip", "LShoulder", "LHip", "LKnee"),
+    ("Right shoulder", "RElbow", "RShoulder", "RHip"),
+    ("Left shoulder", "LElbow", "LShoulder", "LHip"),
 ]
 
 
@@ -66,6 +70,23 @@ def joint_angle(a, b, c):
         return None
     cos_angle = np.clip(np.dot(ba, bc) / denom, -1.0, 1.0)
     return float(np.degrees(np.arccos(cos_angle)))
+
+
+def midpoint(a, b):
+    """Midpoint of two points, or None if either is missing."""
+    if a is None or b is None:
+        return None
+    return ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
+
+
+def torso_lean(neck, mid_hip):
+    """Lean of the neck-to-hip line from vertical, in degrees (0 = upright), or None if a point is missing.
+
+    Image y grows downwards, so the vertical reference points from the hips up to the neck.
+    """
+    if neck is None or mid_hip is None:
+        return None
+    return joint_angle(neck, mid_hip, (mid_hip[0], mid_hip[1] - 1))
 
 
 def pose_detector(frame: np.ndarray, net, threshold: float):
@@ -132,4 +153,6 @@ rows = []
 for name, a, b, c in JOINT_ANGLES:
     angle = joint_angle(points[BODY_PARTS[a]], points[BODY_PARTS[b]], points[BODY_PARTS[c]])
     rows.append({"Joint": name, "Angle (deg)": "not detected" if angle is None else f"{angle:.0f}"})
+lean = torso_lean(points[BODY_PARTS["Neck"]], midpoint(points[BODY_PARTS["RHip"]], points[BODY_PARTS["LHip"]]))
+rows.append({"Joint": "Torso lean from vertical", "Angle (deg)": "not detected" if lean is None else f"{lean:.0f}"})
 st.table(rows)
