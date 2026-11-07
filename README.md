@@ -23,18 +23,28 @@ pip install -r requirements.txt
 streamlit run app/estimation_app.py
 ```
 
-Upload a clear, full-body image, or use the bundled demo image, then move the threshold slider to control how confident a detection must be before it is drawn. Below the skeleton the app lists the elbow and knee angles it could compute, and the annotated image can be downloaded as a PNG.
+Upload a clear, full-body image, or use the bundled demo image, then move the threshold slider to control how confident a detection must be before it is drawn. Below the skeleton the app lists the elbow, knee, hip and shoulder angles it could compute, plus the torso lean from vertical. The annotated image can be downloaded as a PNG, and the keypoints and angles as JSON.
 
 ## Roadmap
 
 The goal is automatic feedback on exercise form, as a cheap alternative to a personal trainer, with rehab and physiotherapy as a second use case.
 
 - [x] Joint angles (elbows, knees) computed from the detected keypoints
-- [ ] Hip and shoulder angles, plus torso lean relative to vertical
+- [x] Hip and shoulder angles, plus torso lean relative to vertical
+- [x] Export keypoints and angles as JSON
 - [ ] Per-exercise form rules (squat depth, push-up elbow lock-out, plank alignment)
 - [ ] Rep counting from angle minima and maxima on webcam or video input
 - [ ] Webcam mode in the Streamlit app, not only in the browser demo
 - [ ] Cleaner UI: side-by-side original and result, per-joint confidence
+
+## How this project is built
+
+I develop this repository with Claude Code as a pair programmer. The split of work is:
+
+- **I decide what to build.** The roadmap above is mine, and each item is scoped by hand into a change small enough to review in one sitting.
+- **Claude drafts and I review.** Claude reads the relevant code, proposes an implementation, and runs a quick check on the pure functions (for example the angle maths). I read every diff before it is committed and reject or rework anything I would not have written myself.
+- **Commits stay small and honest.** One change per commit, with a `Co-Authored-By: Claude` trailer on the ones Claude helped write, so the history shows which parts were AI-assisted.
+- **Bugs get fixed at the root.** The fixes listed under Testing notes came from reproducing the problem first, then changing the cause, not the symptom.
 
 ## Run the browser demo locally
 
