@@ -7,6 +7,7 @@ The model (graph_opt.pb) and the demo image (stand.jpg) are loaded relative to t
 working directory.
 """
 import io
+import json
 import threading
 from pathlib import Path
 
@@ -156,3 +157,11 @@ for name, a, b, c in JOINT_ANGLES:
 lean = torso_lean(points[BODY_PARTS["Neck"]], midpoint(points[BODY_PARTS["RHip"]], points[BODY_PARTS["LHip"]]))
 rows.append({"Joint": "Torso lean from vertical", "Angle (deg)": "not detected" if lean is None else f"{lean:.0f}"})
 st.table(rows)
+
+keypoints = {name: (None if points[idx] is None else {"x": points[idx][0], "y": points[idx][1]})
+             for name, idx in BODY_PARTS.items() if name != "Background"}
+angles = {row["Joint"]: (None if row["Angle (deg)"] == "not detected" else float(row["Angle (deg)"])) for row in rows}
+export = {"image_size": {"width": int(image.shape[1]), "height": int(image.shape[0])},
+          "threshold": threshold, "keypoints": keypoints, "angles_deg": angles}
+st.download_button("Download keypoints as JSON", data=json.dumps(export, indent=2),
+                   file_name="pose.json", mime="application/json")
